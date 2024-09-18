@@ -1,18 +1,12 @@
 package org.example;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Scanner;
 
 public class Inventario {
-    private List<Producto> productos;
-
-    public Inventario() {
-        this.productos = new ArrayList<>();
-    }
-
-    public List<Producto> getProductos() {
-        return productos;
-    }
 
     public void agregarProducto() {
         Scanner scanner = new Scanner(System.in);
@@ -28,75 +22,107 @@ public class Inventario {
 
         System.out.print("Precio del producto: ");
         double precio = scanner.nextDouble();
-        scanner.nextLine(); // Consumir la nueva línea
+        scanner.nextLine(); // Consumir nueva línea
 
-        Producto nuevoProducto = new Producto(nombre, categoria, cantidad, precio);
-        productos.add(nuevoProducto);
+        try (Connection conn = ConexionDB.getConnection()) {
+            String sql = "INSERT INTO productos (nombre, categoria, cantidad, precio) VALUES (?, ?, ?, ?)";
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setString(1, nombre);
+            statement.setString(2, categoria);
+            statement.setInt(3, cantidad);
+            statement.setDouble(4, precio);
 
-        System.out.println("Producto agregado exitosamente.");
+            int filasInsertadas = statement.executeUpdate();
+            if (filasInsertadas > 0) {
+                System.out.println("Producto agregado exitosamente.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al agregar producto: " + e.getMessage());
+        }
     }
 
-    public void modificarProducto() {
-        Scanner scanner = new Scanner(System.in);
+    public void listarProductos() {
+        try (Connection conn = ConexionDB.getConnection()) {
+            String sql = "SELECT * FROM productos";
+            Statement statement = conn.createStatement();
+            ResultSet resultSet = statement.executeQuery(sql);
 
-        System.out.print("Ingrese el nombre del producto a modificar: ");
-        String nombre = scanner.nextLine();
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String nombre = resultSet.getString("nombre");
+                String categoria = resultSet.getString("categoria");
+                int cantidad = resultSet.getInt("cantidad");
+                double precio = resultSet.getDouble("precio");
 
-        Producto producto = buscarProducto(nombre);
-        if (producto != null) {
-            System.out.print("Nuevo nombre: ");
-            String nuevoNombre = scanner.nextLine();
-
-            System.out.print("Nueva categoría: ");
-            String nuevaCategoria = scanner.nextLine();
-
-            System.out.print("Nueva cantidad: ");
-            int nuevaCantidad = scanner.nextInt();
-
-            System.out.print("Nuevo precio: ");
-            double nuevoPrecio = scanner.nextDouble();
-            scanner.nextLine(); // Consumir nueva línea
-
-            producto.setNombre(nuevoNombre);
-            producto.setCategoria(nuevaCategoria);
-            producto.setCantidad(nuevaCantidad);
-            producto.setPrecio(nuevoPrecio);
-
-            System.out.println("Producto modificado exitosamente.");
-        } else {
-            System.out.println("Producto no encontrado.");
+                System.out.println("ID: " + id + " | Nombre: " + nombre +
+                        " | Categoría: " + categoria +
+                        " | Cantidad: " + cantidad +
+                        " | Precio: " + precio);
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al listar productos: " + e.getMessage());
         }
     }
 
     public void eliminarProducto() {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.print("Ingrese el nombre del producto a eliminar: ");
+        System.out.print("Ingrese el ID del producto a eliminar: ");
+        int id = scanner.nextInt();
+
+        try (Connection conn = ConexionDB.getConnection()) {
+            String sql = "DELETE FROM productos WHERE id = ?";
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setInt(1, id);
+
+            int filasEliminadas = statement.executeUpdate();
+            if (filasEliminadas > 0) {
+                System.out.println("Producto eliminado exitosamente.");
+            } else {
+                System.out.println("No se encontró un producto con ese ID.");
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al eliminar producto: " + e.getMessage());
+        }
+    }
+
+    public void modificarProducto() {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Ingrese el ID del producto a modificar: ");
+        int id = scanner.nextInt();
+        scanner.nextLine(); // Consumir nueva línea
+
+        System.out.print("Nuevo nombre del producto: ");
         String nombre = scanner.nextLine();
 
-        Producto producto = buscarProducto(nombre);
-        if (producto != null) {
-            productos.remove(producto);
-            System.out.println("Producto eliminado exitosamente.");
-        } else {
-            System.out.println("Producto no encontrado.");
-        }
-    }
+        System.out.print("Nueva categoría del producto: ");
+        String categoria = scanner.nextLine();
 
-    public void listarProductos() {
-        if (productos.isEmpty()) {
-            System.out.println("El inventario está vacío.");
-        } else {
-            productos.forEach(System.out::println);
-        }
-    }
+        System.out.print("Nueva cantidad del producto: ");
+        int cantidad = scanner.nextInt();
 
-    private Producto buscarProducto(String nombre) {
-        for (Producto producto : productos) {
-            if (producto.getNombre().equalsIgnoreCase(nombre)) {
-                return producto;
+        System.out.print("Nuevo precio del producto: ");
+        double precio = scanner.nextDouble();
+        scanner.nextLine(); // Consumir nueva línea
+
+        try (Connection conn = ConexionDB.getConnection()) {
+            String sql = "UPDATE productos SET nombre = ?, categoria = ?, cantidad = ?, precio = ? WHERE id = ?";
+            PreparedStatement statement = conn.prepareStatement(sql);
+            statement.setString(1, nombre);
+            statement.setString(2, categoria);
+            statement.setInt(3, cantidad);
+            statement.setDouble(4, precio);
+            statement.setInt(5, id);
+
+            int filasActualizadas = statement.executeUpdate();
+            if (filasActualizadas > 0) {
+                System.out.println("Producto modificado exitosamente.");
+            } else {
+                System.out.println("No se encontró un producto con ese ID.");
             }
+        } catch (SQLException e) {
+            System.out.println("Error al modificar producto: " + e.getMessage());
         }
-        return null;
     }
 }

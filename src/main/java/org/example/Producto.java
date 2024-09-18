@@ -13,11 +13,10 @@ public class Producto {
         this.precio = precio;
     }
 
-    // Getters y setters
-
     public String getNombre() {
         return nombre;
     }
+
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
@@ -25,6 +24,7 @@ public class Producto {
     public String getCategoria() {
         return categoria;
     }
+
     public void setCategoria(String categoria) {
         this.categoria = categoria;
     }
@@ -32,6 +32,7 @@ public class Producto {
     public int getCantidad() {
         return cantidad;
     }
+
     public void setCantidad(int cantidad) {
         this.cantidad = cantidad;
     }
@@ -39,6 +40,7 @@ public class Producto {
     public double getPrecio() {
         return precio;
     }
+
     public void setPrecio(double precio) {
         this.precio = precio;
     }

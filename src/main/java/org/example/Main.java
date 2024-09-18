@@ -1,19 +1,10 @@
 package org.example;
-
 import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         Inventario inventario = new Inventario();
-        ArchivoPersistencia persistencia = new ArchivoPersistencia();
-
-        // Cargar datos al inicio
-        try {
-            inventario = (Inventario) persistencia.cargarDatos();
-        } catch (Exception e) {
-            System.out.println("No se pudieron cargar los datos.");
-        }
 
         int opcion;
         do {
@@ -42,13 +33,8 @@ public class Main {
                     inventario.listarProductos();
                     break;
                 case 5:
-                    // Guardar datos y salir
-                    try {
-                        persistencia.guardarDatos(inventario.getProductos());
-                    } catch (Exception e) {
-                        System.out.println("Error al guardar los datos.");
-                    }
-                    System.exit(0);
+                    System.out.println("Saliendo del sistema.");
+                    break;
                 default:
                     System.out.println("Opción no válida.");
             }
