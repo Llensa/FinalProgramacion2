@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "nombre": "Laptop",
+    "categoria": "Electrónica",
+    "cantidad": 10,
+    "precio": 1500.00
+  },
+  {
+    "nombre": "Smartphone",
+    "categoria": "Electrónica",
+    "cantidad": 20,
+    "precio": 800.00
+  },
+  {
+    "nombre": "Escritorio",
+    "categoria": "Muebles",
+    "cantidad": 5,
+    "precio": 250.00
+  }
+]

@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ArchivoPersistencia {
     private static final String FILE_PATH = "inventario.json";
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
 
     public void guardarDatos(List<Producto> productos) throws Exception {
         try (FileWriter writer = new FileWriter(FILE_PATH)) {
