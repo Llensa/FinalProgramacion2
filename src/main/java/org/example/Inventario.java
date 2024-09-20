@@ -1,4 +1,5 @@
 package org.example;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -35,17 +36,24 @@ public class Inventario {
         double precio = scanner.nextDouble();
         scanner.nextLine(); // Consumir nueva línea
 
+        Producto producto = new Producto();
+        producto.setNombre(nombre);
+        producto.setCategoria(categoria);
+        producto.setCantidad(cantidad);
+        producto.setPrecio(precio);
+
         try (Connection conn = ConexionDB.getConnection()) {
             String sql = "INSERT INTO productos (nombre, categoria, cantidad, precio) VALUES (?, ?, ?, ?)";
             PreparedStatement statement = conn.prepareStatement(sql);
-            statement.setString(1, nombre);
-            statement.setString(2, categoria);
-            statement.setInt(3, cantidad);
-            statement.setDouble(4, precio);
+            statement.setString(1, producto.getNombre());
+            statement.setString(2, producto.getCategoria());
+            statement.setInt(3, producto.getCantidad());
+            statement.setDouble(4, producto.getPrecio());
 
             int filasInsertadas = statement.executeUpdate();
             if (filasInsertadas > 0) {
                 System.out.println("Producto agregado exitosamente.");
+                productos.add(producto); // Añadimos el producto a la lista
             }
         } catch (SQLException e) {
             System.out.println("Error al agregar producto: " + e.getMessage());
@@ -59,16 +67,13 @@ public class Inventario {
             ResultSet resultSet = statement.executeQuery(sql);
 
             while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String nombre = resultSet.getString("nombre");
-                String categoria = resultSet.getString("categoria");
-                int cantidad = resultSet.getInt("cantidad");
-                double precio = resultSet.getDouble("precio");
+                Producto producto = new Producto();
+                producto.setNombre(resultSet.getString("nombre"));
+                producto.setCategoria(resultSet.getString("categoria"));
+                producto.setCantidad(resultSet.getInt("cantidad"));
+                producto.setPrecio(resultSet.getDouble("precio"));
 
-                System.out.println("ID: " + id + " | Nombre: " + nombre +
-                        " | Categoría: " + categoria +
-                        " | Cantidad: " + cantidad +
-                        " | Precio: " + precio);
+                System.out.println(producto.toString());
             }
         } catch (SQLException e) {
             System.out.println("Error al listar productos: " + e.getMessage());
@@ -105,25 +110,25 @@ public class Inventario {
         scanner.nextLine(); // Consumir nueva línea
 
         System.out.print("Nuevo nombre del producto: ");
-        String nombre = scanner.nextLine();
+        String nuevoNombre = scanner.nextLine();
 
         System.out.print("Nueva categoría del producto: ");
-        String categoria = scanner.nextLine();
+        String nuevaCategoria = scanner.nextLine();
 
         System.out.print("Nueva cantidad del producto: ");
-        int cantidad = scanner.nextInt();
+        int nuevaCantidad = scanner.nextInt();
 
         System.out.print("Nuevo precio del producto: ");
-        double precio = scanner.nextDouble();
+        double nuevoPrecio = scanner.nextDouble();
         scanner.nextLine(); // Consumir nueva línea
 
         try (Connection conn = ConexionDB.getConnection()) {
             String sql = "UPDATE productos SET nombre = ?, categoria = ?, cantidad = ?, precio = ? WHERE id = ?";
             PreparedStatement statement = conn.prepareStatement(sql);
-            statement.setString(1, nombre);
-            statement.setString(2, categoria);
-            statement.setInt(3, cantidad);
-            statement.setDouble(4, precio);
+            statement.setString(1, nuevoNombre);
+            statement.setString(2, nuevaCategoria);
+            statement.setInt(3, nuevaCantidad);
+            statement.setDouble(4, nuevoPrecio);
             statement.setInt(5, id);
 
             int filasActualizadas = statement.executeUpdate();
@@ -134,6 +139,28 @@ public class Inventario {
             }
         } catch (SQLException e) {
             System.out.println("Error al modificar producto: " + e.getMessage());
+        }
+    }
+
+    public void agregarProductoDesdeJson(List<Producto> productosDesdeJson) {
+        try (Connection conn = ConexionDB.getConnection()) {
+            String sql = "INSERT INTO productos (nombre, categoria, cantidad, precio) VALUES (?, ?, ?, ?)";
+            PreparedStatement statement = conn.prepareStatement(sql);
+
+            for (Producto producto : productosDesdeJson) {
+                statement.setString(1, producto.getNombre());
+                statement.setString(2, producto.getCategoria());
+                statement.setInt(3, producto.getCantidad());
+                statement.setDouble(4, producto.getPrecio());
+
+                int filasInsertadas = statement.executeUpdate();
+                if (filasInsertadas > 0) {
+                    System.out.println("Producto " + producto.getNombre() + " agregado exitosamente.");
+                    productos.add(producto); // Añadir a la lista en memoria
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al agregar productos desde JSON: " + e.getMessage());
         }
     }
 }

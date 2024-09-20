@@ -9,7 +9,7 @@ public class Main {
         Inventario inventario = new Inventario();
         ArchivoPersistencia persistencia = new ArchivoPersistencia();
 
-        // Cargar los productos al inicio
+        // Cargar productos al inicio
         try {
             List<Producto> productosCargados = persistencia.cargarDatos();
             inventario.setProductos(productosCargados);
@@ -21,11 +21,12 @@ public class Main {
         int opcion;
         do {
             System.out.println("=== Menú Principal ===");
-            System.out.println("1. Agregar Producto");
+            System.out.println("1. Agregar Producto Manualmente");
             System.out.println("2. Modificar Producto");
             System.out.println("3. Eliminar Producto");
             System.out.println("4. Consultar Productos");
-            System.out.println("5. Salir");
+            System.out.println("5. Agregar productos desde JSON");
+            System.out.println("6. Salir");
             System.out.print("Selecciona una opción: ");
 
             opcion = scanner.nextInt();
@@ -45,6 +46,15 @@ public class Main {
                     inventario.listarProductos();
                     break;
                 case 5:
+                    // Agregar productos desde JSON
+                    try {
+                        List<Producto> productosDesdeJson = persistencia.cargarDatos();
+                        inventario.agregarProductoDesdeJson(productosDesdeJson);
+                    } catch (Exception e) {
+                        System.out.println("Error al cargar productos desde JSON: " + e.getMessage());
+                    }
+                    break;
+                case 6:
                     // Guardar los productos antes de salir
                     try {
                         persistencia.guardarDatos(inventario.getProductos());
@@ -57,6 +67,6 @@ public class Main {
                 default:
                     System.out.println("Opción no válida.");
             }
-        } while (opcion != 5);
+        } while (opcion != 6);
     }
 }
