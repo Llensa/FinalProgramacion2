@@ -62,17 +62,16 @@ public class Inventario {
 
     public void listarProductos() {
         try (Connection conn = ConexionDB.getConnection()) {
-            String sql = "SELECT * FROM productos";
+            String sql = "SELECT id, nombre, categoria, cantidad, precio FROM productos";
             Statement statement = conn.createStatement();
             ResultSet resultSet = statement.executeQuery(sql);
-
             while (resultSet.next()) {
                 Producto producto = new Producto();
+                producto.setId(resultSet.getInt("id"));
                 producto.setNombre(resultSet.getString("nombre"));
                 producto.setCategoria(resultSet.getString("categoria"));
                 producto.setCantidad(resultSet.getInt("cantidad"));
                 producto.setPrecio(resultSet.getDouble("precio"));
-
                 System.out.println(producto.toString());
             }
         } catch (SQLException e) {
